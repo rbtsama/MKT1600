@@ -116,46 +116,64 @@
               </div>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <a 
-                href="javascript:void(0)" 
-                @click="navigateToAssetDetail('account', item.account)"
-                class="text-gray-700 hover:text-indigo-600 transition-colors"
-              >
-                {{ item.account }}
-              </a>
+              <div class="flex flex-col items-start">
+                <a 
+                  href="javascript:void(0)" 
+                  @click="navigateToAssetDetail('account', item.account)"
+                  class="text-gray-700 hover:text-indigo-600 transition-colors"
+                >
+                  {{ item.account }}
+                </a>
+                <span v-if="hasPenalty(item, 'account')" class="text-xs text-red-600 mt-1">
+                  {{ formatPenaltyInfo(item, 'account') }}
+                </span>
+              </div>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <a 
-                href="javascript:void(0)" 
-                @click="navigateToAssetDetail('virtualNumber', item.virtualNumber)"
-                class="text-gray-700 hover:text-indigo-600 transition-colors"
-              >
-                {{ item.virtualNumber }}
-              </a>
+              <div class="flex flex-col items-start">
+                <a 
+                  href="javascript:void(0)" 
+                  @click="navigateToAssetDetail('virtualNumber', item.virtualNumber)"
+                  class="text-gray-700 hover:text-indigo-600 transition-colors"
+                >
+                  {{ item.virtualNumber }}
+                </a>
+                <span v-if="hasPenalty(item, 'virtualNumber')" class="text-xs text-red-600 mt-1">
+                  {{ formatPenaltyInfo(item, 'virtualNumber') }}
+                </span>
+              </div>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <div class="flex flex-col items-center">
+              <div class="flex flex-col items-start">
                 <a 
                   href="javascript:void(0)" 
                   @click="navigateToAssetDetail('vehicle', item.vehicle)"
                   class="text-gray-700 hover:text-indigo-600 transition-colors"
                 >
-                  <div class="flex flex-col items-center">
+                  <div class="flex flex-col items-start">
                     <span v-if="getVehicleInfo(item.vehicle)?.brand" class="font-medium">{{ getVehicleInfo(item.vehicle)?.brand }}</span>
-                    <span v-if="getVehicleInfo(item.vehicle)?.detail" class="text-sm text-gray-500 whitespace-normal text-center">{{ getVehicleInfo(item.vehicle)?.detail }}</span>
+                    <span v-if="getVehicleInfo(item.vehicle)?.detail" class="text-xs text-gray-500 whitespace-normal text-left">{{ getVehicleInfo(item.vehicle)?.detail }}</span>
                     <span v-if="!getVehicleInfo(item.vehicle)">{{ item.vehicle }}</span>
                   </div>
                 </a>
+                <span v-if="hasPenalty(item, 'vehicle')" class="text-xs text-red-600 mt-1">
+                  {{ formatPenaltyInfo(item, 'vehicle') }}
+                </span>
               </div>
             </td>
             <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <a 
-                href="javascript:void(0)" 
-                @click="navigateToAssetDetail('ip', item.ip)"
-                class="text-gray-700 hover:text-indigo-600 transition-colors"
-              >
-                {{ item.ip }}
-              </a>
+              <div class="flex flex-col items-start">
+                <a 
+                  href="javascript:void(0)" 
+                  @click="navigateToAssetDetail('ip', item.ip)"
+                  class="text-gray-700 hover:text-indigo-600 transition-colors"
+                >
+                  {{ item.ip }}
+                </a>
+                <span v-if="hasPenalty(item, 'ip')" class="text-xs text-red-600 mt-1">
+                  {{ formatPenaltyInfo(item, 'ip') }}
+                </span>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -783,6 +801,65 @@ function getPageNumbers() {
   }
   
   return numbersToShow;
+}
+
+/**
+ * 判断是否有处罚
+ * @param item 数据项
+ * @param type 资产类型
+ */
+function hasPenalty(item: any, type: string): boolean {
+  // 模拟逻辑：根据资产类型和资产ID判断是否存在处罚记录
+  // 实际应用中，这里应该查询该资产的处罚记录
+  if (!item) return false;
+  
+  // 为了演示，我们根据资产的哈希值模拟是否有处罚记录
+  // 这确保同一资产在不同记录中的处罚状态一致
+  const assetId = item[type]; // 获取对应类型的资产ID
+  if (!assetId) return false;
+  
+  // 使用字符串哈希简单算法
+  const hash = assetId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  // 约40%的资产会有处罚记录
+  return hash % 10 < 4;
+}
+
+/**
+ * 格式化处罚信息
+ * @param item 数据项
+ * @param type 资产类型
+ */
+function formatPenaltyInfo(item: any, type: string): string {
+  if (!item) return '';
+  
+  const assetId = item[type]; // 获取对应类型的资产ID
+  if (!assetId) return '';
+  
+  // 基于资产ID生成一致的处罚信息
+  const hash = assetId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  
+  // 根据hash值生成处罚天数、删帖数和封号数
+  const days = (hash % 7) + 1; // 1-7天
+  
+  // 删帖数和封号数至少有一个不为零
+  let del = Math.floor((hash % 100) / 20); // 0-4次删帖
+  let ban = Math.floor((hash % 30) / 20); // 0-1次封号
+  
+  // 确保至少有一种处罚
+  if (del === 0 && ban === 0) {
+    del = 1;
+  }
+  
+  // 格式化处罚信息
+  let info = `${days}天前`;
+  if (del > 0) {
+    info += ` | ${del}删`;
+  }
+  if (ban > 0) {
+    info += ` | ${ban}封`;
+  }
+  
+  return info;
 }
 </script>
 
