@@ -409,33 +409,24 @@ export default {
     },
     
     /**
-     * 获取状态样式类
-     * @param {string} status - 状态值
-     * @returns {string} CSS类名
-     */
-    getStatusClass(status) {
-      const statusClasses = {
-        'active': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
-        'inactive': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800',
-        'warning': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800',
-        'penalty': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'
-      };
-      return statusClasses[status] || statusClasses['inactive'];
-    },
-    
-    /**
      * 获取状态文本
      * @param {string} status - 状态值
      * @returns {string} 格式化的状态文本
      */
     getStatusText(status) {
       const statusText = {
+        // 原始状态值映射
+        'available': '可用',
+        'in_use': '使用中',
+        'disabled': '禁用',
+        'sold': '已售',
+        // 新增状态值映射
         'active': '使用中',
         'inactive': '未使用',
         'warning': '警告',
         'penalty': '处罚中'
       };
-      return statusText[status] || '未知状态';
+      return statusText[status] || status;
     },
     
     /**
@@ -445,12 +436,39 @@ export default {
      */
     getPrepStatusText(status) {
       const statusText = {
+        // 原始状态值映射
+        'Ready_For_Sale': '可售',
+        'Retail_Photo': '拍照中',
+        'Inspection': '检验中',
+        'SOLD': '已售出',
+        // 新增状态值映射
         'ready': '已整备',
         'pending': '待整备',
         'repairing': '整备中',
         'na': '不适用'
       };
-      return statusText[status] || '未知状态';
+      return statusText[status] || status;
+    },
+    
+    /**
+     * 获取状态样式类
+     * @param {string} status - 状态值
+     * @returns {string} CSS类名
+     */
+    getStatusClass(status) {
+      const statusClasses = {
+        // 原始状态值映射
+        'available': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800',
+        'in_use': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
+        'disabled': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800',
+        'sold': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800',
+        // 新增状态值映射
+        'active': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
+        'inactive': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800',
+        'warning': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800',
+        'penalty': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'
+      };
+      return statusClasses[status] || 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
     },
     
     /**
