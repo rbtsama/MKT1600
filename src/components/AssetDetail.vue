@@ -1,10 +1,12 @@
 <template>
   <div>
+    <!-- 标题栏 - 显示资产信息和返回按钮 -->
     <div class="flex justify-between items-center mb-6">
       <h2 class="text-2xl font-bold">{{ getTitle() }}</h2>
       <button 
         @click="goBack"
         class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition-colors flex items-center"
+        aria-label="返回上一页"
       >
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -13,7 +15,7 @@
       </button>
     </div>
 
-    <!-- 资产基础信息标题 -->
+    <!-- 资产基础信息卡片 -->
     <h3 class="text-lg font-bold mb-3">基本信息</h3>
     <div class="bg-white shadow-md rounded-lg overflow-hidden p-6 mb-8">
       <!-- 基本信息内容，使用flex布局自适应一行展示 -->
@@ -39,10 +41,11 @@
                 v-model="editableLevel" 
                 class="text-sm border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 rounded-md text-center"
                 style="width: 90px;"
+                aria-label="选择账号等级"
               >
-                <option value="bronze" class="text-gray-900">🥉 青铜</option>
-                <option value="silver" class="text-gray-900">🥈 白银</option>
-                <option value="gold" class="text-gray-900">🥇 黄金</option>
+                <option value="bronze" class="text-gray-900">🥉 铜牌</option>
+                <option value="silver" class="text-gray-900">🥈 银牌</option>
+                <option value="gold" class="text-gray-900">🥇 金牌</option>
               </select>
             </div>
           </div>
@@ -100,7 +103,7 @@
           </div>
         </template>
         
-        <!-- 公共统计信息 -->
+        <!-- 所有资产类型的公共统计信息 -->
         <div class="flex flex-col">
           <span class="text-sm font-medium text-gray-500 mb-1">使用次数</span>
           <span class="text-sm font-medium text-gray-800">{{ asset.usageCount }}</span>
@@ -128,7 +131,7 @@
       </div>
     </div>
 
-    <!-- 包装HistoryTable组件，添加与基本信息表格相同的容器样式 -->
+    <!-- 资产历史记录卡片 -->
     <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
       <div class="asset-history p-4">
         <h3 class="text-lg font-bold mb-4">资产信用历史</h3>
@@ -180,7 +183,7 @@ function goBack() {
 
 /**
  * 获取页面标题
- * @returns 根据资产类型生成的标题
+ * @returns {string} 根据资产类型生成的标题
  */
 function getTitle(): string {
   if (props.assetType === 'account') {
@@ -197,49 +200,64 @@ function getTitle(): string {
 
 /**
  * 获取状态CSS类
- * @param status 状态值
- * @returns 对应的CSS类名
+ * @param {string} status - 状态值
+ * @returns {string} 对应的CSS类名
  */
 function getStatusClass(status: string): string {
-  if (status === 'available') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
-  if (status === 'in_use') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
-  if (status === 'disabled') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
-  return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+  const statusClasses = {
+    'active': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
+    'inactive': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800',
+    'warning': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800',
+    'penalty': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800',
+    'available': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800',
+    'in_use': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
+    'disabled': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800',
+    'sold': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800'
+  };
+  return statusClasses[status] || statusClasses['inactive'];
 }
 
 /**
  * 获取状态显示文本
- * @param status 状态值
- * @returns 对应的显示文本
+ * @param {string} status - 状态值
+ * @returns {string} 对应的显示文本
  */
 function getStatusText(status: string): string {
   const statusMap: Record<string, string> = {
+    'active': '使用中',
+    'inactive': '未使用',
+    'warning': '警告',
+    'penalty': '处罚中',
     'available': '可用',
     'in_use': '使用中',
     'disabled': '禁用',
     'sold': '已售'
   };
-  return statusMap[status] || status;
+  return statusMap[status] || '未知状态';
 }
 
 /**
  * 获取整备状态显示文本
- * @param status 状态值
- * @returns 对应的显示文本
+ * @param {string} status - 状态值
+ * @returns {string} 对应的显示文本
  */
 function getPrepStatusText(status: string): string {
   const statusMap: Record<string, string> = {
+    'ready': '已整备',
+    'pending': '待整备',
+    'repairing': '整备中',
+    'na': '不适用',
     'Ready_For_Sale': '可售',
     'Retail_Photo': '拍照中',
     'Inspection': '检验中',
     'SOLD': '已售出'
   };
-  return statusMap[status] || status;
+  return statusMap[status] || '未知状态';
 }
 
 /**
  * 获取资产过滤器
- * @returns 用于HistoryTable的资产过滤器对象
+ * @returns {Object|null} 用于HistoryTable的资产过滤器对象
  */
 function getAssetFilter() {
   if (props.assetType === 'account') {
@@ -256,7 +274,7 @@ function getAssetFilter() {
 
 /**
  * 判断当前资产是否有处罚
- * @returns 是否有处罚记录
+ * @returns {boolean} 是否有处罚记录
  */
 function hasPenalty(): boolean {
   const assetId = getAssetValue();
@@ -270,7 +288,7 @@ function hasPenalty(): boolean {
 
 /**
  * 获取当前资产的值
- * @returns 当前资产的唯一标识
+ * @returns {string} 当前资产的唯一标识
  */
 function getAssetValue(): string {
   if (props.assetType === 'account') {
