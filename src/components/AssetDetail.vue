@@ -71,7 +71,7 @@
           </div>
           <div class="flex flex-col">
             <span class="text-sm font-medium text-gray-500 mb-1">整备状态</span>
-            <span class="text-sm text-gray-800 font-medium">{{ getPrepStatusText(asset.prepStatus) }}</span>
+            <span class="text-sm text-gray-800 font-medium">{{ asset.prepStatus }}</span>
           </div>
           <div class="flex flex-col">
             <span class="text-sm font-medium text-gray-500 mb-1">车辆状态</span>
@@ -209,7 +209,7 @@ function getStatusClass(status: string): string {
     'available': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800',
     'in_use': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
     'disabled': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800',
-    'sold': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800',
+    'sold': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500',
     // 新增状态值映射
     'active': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
     'inactive': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800',

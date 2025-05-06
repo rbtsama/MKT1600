@@ -132,7 +132,7 @@
                   {{ getStatusText(item.status) }}
                 </div>
                 <div v-else-if="column.key === 'prepStatus'" class="text-sm">
-                  {{ getPrepStatusText(item.prepStatus) }}
+                  {{ item.prepStatus }}
                 </div>
                 <div v-else-if="column.key === 'level'" :class="getLevelClass(item.level)">
                   <span class="flex items-center">
@@ -461,7 +461,7 @@ export default {
         'available': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800',
         'in_use': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
         'disabled': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800',
-        'sold': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800',
+        'sold': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500',
         // 新增状态值映射
         'active': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800',
         'inactive': 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800',
