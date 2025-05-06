@@ -1,196 +1,188 @@
 <template>
   <div class="history-table">
-    <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-bold">{{ title }}</h3>
-      <div class="flex gap-4">
-        <div class="flex items-center">
-          <button 
-            @click="togglePenaltiesFilter"
-            :class="[
-              'px-3 py-1.5 rounded-md text-sm font-medium transition-colors flex items-center',
-              showPenaltiesOnly 
-                ? 'bg-indigo-600 text-white hover:bg-indigo-700' 
-                : 'bg-gray-200 text-gray-800 hover:bg-gray-300'
-            ]"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-            </svg>
-            {{ showPenaltiesOnly ? '显示全部' : '只看处罚' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="bg-white shadow-md rounded-lg overflow-x-auto">
-      <table class="w-full table-auto">
-        <thead class="bg-gray-50">
-          <tr>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              记录时间
-            </th>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              主题
-            </th>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              发帖快照
-            </th>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              动作
-            </th>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              处罚原因
-            </th>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              账号
-            </th>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              虚拟号
-            </th>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              车辆
-            </th>
-            <th class="px-4 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
-              IP
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200">
-          <tr 
-            v-for="(item, idx) in paginatedData" 
-            :key="idx"
-          >
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              {{ formatTo24HourTime(item.time) }}
-            </td>
-            <td class="px-4 py-3 text-sm text-gray-800 text-center">
-              <a :href="item.link" target="_blank" class="text-gray-700 hover:text-indigo-600 hover:underline transition-colors">
-                {{ item.title }}
-              </a>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
+    <!-- 资产信用历史表格 -->
+    <table class="w-full bg-white shadow-md rounded-lg">
+      <!-- 表头区域 -->
+      <thead>
+        <tr class="bg-gray-800 text-white">
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            记录时间
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            主题
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            发帖快照
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            动作
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            处罚原因
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            账号
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            虚拟号
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            车辆
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            IP
+          </th>
+        </tr>
+      </thead>
+      <!-- 表格内容区域 -->
+      <tbody>
+        <tr 
+          v-for="(item, idx) in paginatedData" 
+          :key="idx"
+          class="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0"
+        >
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <div class="font-medium text-gray-700">{{ formatTo24HourTime(item.time) }}</div>
+          </td>
+          <td class="px-4 py-3 text-sm text-center">
+            <a :href="item.link" target="_blank" class="text-gray-700 hover:text-gray-900 hover:underline transition-colors font-medium">
+              {{ item.title }}
+            </a>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <button 
+              @click="viewSnapshot(item)"
+              class="bg-gray-100 text-gray-700 hover:bg-gray-200 px-2 py-1 rounded-md text-xs font-medium transition-colors"
+            >
+              查看快照
+            </button>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <div class="flex items-center justify-center">
+              <span :class="getActionTagClass(item.action)">
+                {{ getActionText(item.action) }}
+              </span>
               <button 
-                @click="viewSnapshot(item)"
-                class="text-gray-600 hover:text-indigo-600 hover:underline text-xs font-medium transition-colors"
+                v-if="hasEditPermission"
+                @click="editAction(item)"
+                class="ml-2 text-gray-400 hover:text-gray-600"
               >
-                查看快照
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
               </button>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <div class="flex items-center justify-center">
-                <span :class="getActionTagClass(item.action)">
-                  {{ getActionText(item.action) }}
-                </span>
-                <button 
-                  v-if="hasEditPermission"
-                  @click="editAction(item)"
-                  class="ml-2 text-gray-400 hover:text-gray-600"
+            </div>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <div class="flex items-center justify-center">
+              <div class="flex flex-wrap gap-1 justify-center">
+                <span 
+                  v-for="reason in item.reasons" 
+                  :key="reason"
+                  class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                </button>
+                  {{ getReasonText(reason) }}
+                </span>
+                <span v-if="!item.reasons || item.reasons.length === 0" class="text-gray-400 text-xs">未设置</span>
               </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <div class="flex items-center justify-center">
-                <div class="flex flex-wrap gap-1 justify-center">
-                  <span 
-                    v-for="reason in item.reasons" 
-                    :key="reason"
-                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800"
-                  >
-                    {{ getReasonText(reason) }}
-                  </span>
-                  <span v-if="!item.reasons || item.reasons.length === 0" class="text-gray-400 text-xs">未设置</span>
+              <button 
+                v-if="hasEditPermission"
+                @click="editReasons(item)"
+                class="ml-2 text-gray-400 hover:text-gray-600"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </button>
+            </div>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <div class="flex flex-col items-start">
+              <a 
+                href="javascript:void(0)" 
+                @click="navigateToAssetDetail('account', item.account)"
+                class="text-gray-700 hover:text-gray-900 transition-colors font-medium"
+              >
+                {{ item.account }}
+              </a>
+              <span v-if="hasPenalty(item, 'account')" class="text-xs text-red-600 mt-1">
+                {{ formatPenaltyInfo(item, 'account') }}
+              </span>
+            </div>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <div class="flex flex-col items-start">
+              <a 
+                href="javascript:void(0)" 
+                @click="navigateToAssetDetail('virtualNumber', item.virtualNumber)"
+                class="text-gray-700 hover:text-gray-900 transition-colors font-medium"
+              >
+                {{ item.virtualNumber }}
+              </a>
+              <span v-if="hasPenalty(item, 'virtualNumber')" class="text-xs text-red-600 mt-1">
+                {{ formatPenaltyInfo(item, 'virtualNumber') }}
+              </span>
+            </div>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <div class="flex flex-col items-start">
+              <a 
+                href="javascript:void(0)" 
+                @click="navigateToAssetDetail('vehicle', item.vehicle)"
+                class="text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                <div class="flex flex-col items-start">
+                  <span v-if="getVehicleInfo(item.vehicle)?.brand" class="font-medium">{{ getVehicleInfo(item.vehicle)?.brand }}</span>
+                  <span v-if="getVehicleInfo(item.vehicle)?.detail" class="text-xs text-gray-500 whitespace-normal text-left">{{ getVehicleInfo(item.vehicle)?.detail }}</span>
+                  <span v-if="!getVehicleInfo(item.vehicle)">{{ item.vehicle }}</span>
                 </div>
-                <button 
-                  v-if="hasEditPermission"
-                  @click="editReasons(item)"
-                  class="ml-2 text-gray-400 hover:text-gray-600"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                  </svg>
-                </button>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <div class="flex flex-col items-start">
-                <a 
-                  href="javascript:void(0)" 
-                  @click="navigateToAssetDetail('account', item.account)"
-                  class="text-gray-700 hover:text-indigo-600 transition-colors"
-                >
-                  {{ item.account }}
-                </a>
-                <span v-if="hasPenalty(item, 'account')" class="text-xs text-red-600 mt-1">
-                  {{ formatPenaltyInfo(item, 'account') }}
-                </span>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <div class="flex flex-col items-start">
-                <a 
-                  href="javascript:void(0)" 
-                  @click="navigateToAssetDetail('virtualNumber', item.virtualNumber)"
-                  class="text-gray-700 hover:text-indigo-600 transition-colors"
-                >
-                  {{ item.virtualNumber }}
-                </a>
-                <span v-if="hasPenalty(item, 'virtualNumber')" class="text-xs text-red-600 mt-1">
-                  {{ formatPenaltyInfo(item, 'virtualNumber') }}
-                </span>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <div class="flex flex-col items-start">
-                <a 
-                  href="javascript:void(0)" 
-                  @click="navigateToAssetDetail('vehicle', item.vehicle)"
-                  class="text-gray-700 hover:text-indigo-600 transition-colors"
-                >
-                  <div class="flex flex-col items-start">
-                    <span v-if="getVehicleInfo(item.vehicle)?.brand" class="font-medium">{{ getVehicleInfo(item.vehicle)?.brand }}</span>
-                    <span v-if="getVehicleInfo(item.vehicle)?.detail" class="text-xs text-gray-500 whitespace-normal text-left">{{ getVehicleInfo(item.vehicle)?.detail }}</span>
-                    <span v-if="!getVehicleInfo(item.vehicle)">{{ item.vehicle }}</span>
-                  </div>
-                </a>
-                <span v-if="hasPenalty(item, 'vehicle')" class="text-xs text-red-600 mt-1">
-                  {{ formatPenaltyInfo(item, 'vehicle') }}
-                </span>
-              </div>
-            </td>
-            <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center">
-              <div class="flex flex-col items-start">
-                <a 
-                  href="javascript:void(0)" 
-                  @click="navigateToAssetDetail('ip', item.ip)"
-                  class="text-gray-700 hover:text-indigo-600 transition-colors"
-                >
-                  {{ item.ip }}
-                </a>
-                <span v-if="hasPenalty(item, 'ip')" class="text-xs text-red-600 mt-1">
-                  {{ formatPenaltyInfo(item, 'ip') }}
-                </span>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              </a>
+              <span v-if="hasPenalty(item, 'vehicle')" class="text-xs text-red-600 mt-1">
+                {{ formatPenaltyInfo(item, 'vehicle') }}
+              </span>
+            </div>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <div class="flex flex-col items-start">
+              <a 
+                href="javascript:void(0)" 
+                @click="navigateToAssetDetail('ip', item.ip)"
+                class="text-gray-700 hover:text-gray-900 transition-colors font-medium"
+              >
+                {{ item.ip }}
+              </a>
+              <span v-if="hasPenalty(item, 'ip')" class="text-xs text-red-600 mt-1">
+                {{ formatPenaltyInfo(item, 'ip') }}
+              </span>
+            </div>
+          </td>
+        </tr>
+        
+        <!-- 无数据提示 -->
+        <tr v-if="paginatedData.length === 0">
+          <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+            <div class="flex flex-col items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>暂无记录</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-    <!-- 分页器 -->
-    <div class="flex justify-between items-center mt-4">
+    <!-- 分页器 - 在表格下方保留合理间距 -->
+    <div class="mt-8 flex justify-between items-center">
       <div class="text-sm text-gray-700">
         显示 {{ startItem }} - {{ endItem }} 项，共 {{ filteredData.length }} 项
       </div>
       <div class="flex">
-        <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="分页">
+        <nav class="inline-flex rounded-md shadow-sm" aria-label="分页">
           <button 
             @click="prevPage"
             :disabled="currentPage === 1"
-            class="relative inline-flex items-center px-3 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:z-10 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
           >
             <span class="sr-only">上一页</span>
             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -206,7 +198,7 @@
               :class="[
                 'relative inline-flex items-center px-4 py-2 border text-sm font-medium',
                 currentPage === page
-                  ? 'z-10 bg-indigo-50 border-indigo-500 text-indigo-600'
+                  ? 'z-10 bg-gray-100 border-gray-500 text-gray-700'
                   : 'bg-white border-gray-300 text-gray-500 hover:bg-gray-50'
               ]"
             >
@@ -223,7 +215,7 @@
           <button 
             @click="nextPage"
             :disabled="currentPage === totalPages"
-            class="relative inline-flex items-center px-3 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+            class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed focus:z-10 focus:outline-none focus:ring-1 focus:ring-gray-500 focus:border-gray-500"
           >
             <span class="sr-only">下一页</span>
             <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
@@ -235,37 +227,52 @@
     </div>
 
     <!-- 快照弹窗 -->
-    <div v-if="showSnapshot && currentSnapshot" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg shadow-xl p-6 max-w-4xl w-full max-h-[90vh] overflow-auto">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold">{{ currentSnapshot?.title || '' }}</h3>
-          <button @click="closeSnapshot" class="text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-if="showSnapshot && currentSnapshot" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
+      <div class="bg-white rounded-xl shadow-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-auto">
+        <div class="flex justify-between items-center mb-4 border-b pb-4">
+          <h3 class="text-lg font-bold text-gray-900">{{ currentSnapshot?.title || '' }}</h3>
+          <button @click="closeSnapshot" class="text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div class="snapshot-content border-t pt-4">
-          <div class="mb-4">
-            <p class="text-sm text-gray-700">发布时间: {{ formatTo24HourTime(currentSnapshot?.time) }}</p>
-            <p class="text-sm text-gray-700">发布账号: {{ currentSnapshot?.account || '' }}</p>
-            <p class="text-sm text-gray-700">联系电话: {{ currentSnapshot?.virtualNumber || '' }}</p>
+        <div class="snapshot-content">
+          <div class="mb-6 flex flex-wrap gap-4">
+            <div class="bg-gray-100 py-1 px-3 rounded-full text-sm flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>发布时间: {{ formatTo24HourTime(currentSnapshot?.time) }}</span>
+            </div>
+            <div class="bg-gray-100 py-1 px-3 rounded-full text-sm flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>发布账号: {{ currentSnapshot?.account || '' }}</span>
+            </div>
+            <div class="bg-gray-100 py-1 px-3 rounded-full text-sm flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+              </svg>
+              <span>联系电话: {{ currentSnapshot?.virtualNumber || '' }}</span>
+            </div>
           </div>
-          <div class="bg-gray-50 p-4 rounded-md">
-            <h4 class="font-bold mb-2">帖子内容:</h4>
-            <p>{{ generateFakeContent(currentSnapshot) }}</p>
+          <div class="bg-gray-50 p-6 rounded-lg">
+            <h4 class="font-bold mb-4 text-gray-900 border-l-4 border-gray-500 pl-3">帖子内容:</h4>
+            <p class="text-gray-700 leading-relaxed">{{ generateFakeContent(currentSnapshot) }}</p>
           </div>
         </div>
       </div>
     </div>
 
     <!-- 动作编辑弹窗 -->
-    <div v-if="showActionModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold">修改动作</h3>
-          <button @click="closeActionModal" class="text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-if="showActionModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
+      <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-4 border-b pb-4">
+          <h3 class="text-lg font-bold text-gray-900">修改动作</h3>
+          <button @click="closeActionModal" class="text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -288,7 +295,7 @@
         <div class="flex justify-end mt-6">
           <button 
             @click="saveAction"
-            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none"
+            class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 focus:outline-none"
           >
             确定
           </button>
@@ -297,12 +304,12 @@
     </div>
 
     <!-- 处罚原因编辑弹窗 -->
-    <div v-if="showReasonsModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-50">
-      <div class="bg-white rounded-lg shadow-xl p-6 max-w-md w-full">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-bold">修改处罚原因</h3>
-          <button @click="closeReasonsModal" class="text-gray-500 hover:text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div v-if="showReasonsModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
+      <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-4 border-b pb-4">
+          <h3 class="text-lg font-bold text-gray-900">修改处罚原因</h3>
+          <button @click="closeReasonsModal" class="text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -318,7 +325,7 @@
               :id="reason" 
               :value="reason" 
               v-model="selectedReasons"
-              class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+              class="h-4 w-4 text-gray-600 border-gray-300 rounded focus:ring-gray-500"
             />
             <label 
               :for="reason" 
@@ -331,7 +338,7 @@
         <div class="flex justify-end mt-6">
           <button 
             @click="saveReasons"
-            class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none"
+            class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 focus:outline-none"
           >
             确定
           </button>
@@ -702,7 +709,16 @@ function generateFakeContent(item: any): string {
  */
 function getVehicleInfo(vin: string) {
   if (!vin) return null;
-  return vehicleAssets.find(vehicle => vehicle.vin === vin) || null;
+  
+  // 从vehicleAssets中查找匹配的车辆信息
+  const vehicle = vehicleAssets.find(vehicle => vehicle.vin === vin);
+  if (vehicle) {
+    return {
+      brand: vehicle.brand,
+      detail: vehicle.detail
+    };
+  }
+  return null;
 }
 
 /**
@@ -810,12 +826,10 @@ function getPageNumbers() {
  */
 function hasPenalty(item: any, type: string): boolean {
   // 模拟逻辑：根据资产类型和资产ID判断是否存在处罚记录
-  // 实际应用中，这里应该查询该资产的处罚记录
   if (!item) return false;
   
-  // 为了演示，我们根据资产的哈希值模拟是否有处罚记录
-  // 这确保同一资产在不同记录中的处罚状态一致
-  const assetId = item[type]; // 获取对应类型的资产ID
+  // 获取对应类型的资产ID
+  const assetId = item[type]; 
   if (!assetId) return false;
   
   // 使用字符串哈希简单算法
@@ -865,16 +879,54 @@ function formatPenaltyInfo(item: any, type: string): string {
 
 <style scoped>
 .history-table {
-  padding: 1rem;
+  width: 100%;
+  overflow-x: auto;
+}
+
+:deep(th) {
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.025em;
+  font-size: 0.875rem;
+}
+
+:deep(th):after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,0.3);
+  transform: translateY(1px);
+  transition: transform 0.2s;
+}
+
+:deep(th:hover):after {
+  transform: translateY(0);
+}
+
+:deep(table) {
+  border-collapse: separate;
+  border-spacing: 0;
   width: 100%;
 }
 
-/* 下拉菜单样式 */
-.form-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 0.5rem center;
-  background-repeat: no-repeat;
-  background-size: 1.5em 1.5em;
-  padding-right: 2.5rem;
+:deep(tbody tr) {
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+:deep(tbody tr):hover {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  background-color: #f9fafb;
+}
+
+:deep(tbody td) {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+:deep(tbody tr:last-child td) {
+  border-bottom: none;
 }
 </style> 

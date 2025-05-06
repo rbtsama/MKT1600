@@ -4,8 +4,11 @@
       <h2 class="text-2xl font-bold">{{ getTitle() }}</h2>
       <button 
         @click="goBack"
-        class="px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
+        class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400 transition-colors flex items-center"
       >
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+        </svg>
         返回
       </button>
     </div>
@@ -64,12 +67,16 @@
             <span class="text-sm text-gray-800 font-medium">{{ asset.vin }}</span>
           </div>
           <div class="flex flex-col">
-            <span class="text-sm font-medium text-gray-500 mb-1">车辆名称</span>
-            <span class="text-sm text-gray-800 font-medium">{{ asset.brand }} <span class="text-xs text-gray-500">{{ asset.detail }}</span></span>
+            <span class="text-sm font-medium text-gray-500 mb-1">整备状态</span>
+            <span class="text-sm text-gray-800 font-medium">{{ getPrepStatusText(asset.prepStatus) }}</span>
           </div>
           <div class="flex flex-col">
             <span class="text-sm font-medium text-gray-500 mb-1">车辆状态</span>
-            <span class="text-sm text-gray-800 font-medium">{{ asset.status }}</span>
+            <span :class="getStatusClass(asset.status)">{{ getStatusText(asset.status) }}</span>
+          </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-medium text-gray-500 mb-1">车辆名称</span>
+            <span class="text-sm text-gray-800 font-medium">{{ asset.brand }} <span class="text-xs text-gray-500">{{ asset.detail }}</span></span>
           </div>
         </template>
         
@@ -87,6 +94,10 @@
             <span class="text-sm font-medium text-gray-500 mb-1">IP供应商</span>
             <span class="text-sm text-gray-800">{{ asset.provider }}</span>
           </div>
+          <div class="flex flex-col">
+            <span class="text-sm font-medium text-gray-500 mb-1">IP状态</span>
+            <span :class="getStatusClass(asset.status)">{{ getStatusText(asset.status) }}</span>
+          </div>
         </template>
         
         <!-- 公共统计信息 -->
@@ -96,7 +107,11 @@
         </div>
         <div class="flex flex-col">
           <span class="text-sm font-medium text-gray-500 mb-1">最近使用</span>
-          <span class="text-sm font-medium text-gray-800">{{ asset.lastUsed === 0 ? '今天' : `${asset.lastUsed}天前` }}</span>
+          <span class="text-sm font-medium text-gray-800">{{ asset.lastUsed === 0 ? '0天前' : `${asset.lastUsed}天前` }}</span>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-sm font-medium text-gray-500 mb-1">最近停用</span>
+          <span class="text-sm font-medium text-gray-800">{{ asset.lastInactive === 0 ? '0天前' : `${asset.lastInactive}天前` }}</span>
         </div>
         <div class="flex flex-col">
           <span class="text-sm font-medium text-gray-500 mb-1">最近处罚</span>
@@ -115,10 +130,15 @@
 
     <!-- 包装HistoryTable组件，添加与基本信息表格相同的容器样式 -->
     <div class="bg-white shadow-md rounded-lg overflow-hidden mb-8">
-      <history-table 
-        :data="assetHistories" 
-        :asset-filter="getAssetFilter()"
-      />
+      <div class="asset-history p-4">
+        <h3 class="text-lg font-bold mb-4">资产信用历史</h3>
+        
+        <!-- 资产历史记录表格 -->
+        <history-table 
+          :data="assetHistories" 
+          :asset-filter="getAssetFilter()"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -181,8 +201,9 @@ function getTitle(): string {
  * @returns 对应的CSS类名
  */
 function getStatusClass(status: string): string {
-  if (status === 'normal') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
-  if (status === 'banned' || status === 'deleted') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
+  if (status === 'available') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+  if (status === 'in_use') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+  if (status === 'disabled') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
   return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
 }
 
@@ -193,11 +214,24 @@ function getStatusClass(status: string): string {
  */
 function getStatusText(status: string): string {
   const statusMap: Record<string, string> = {
-    'normal': '正常',
-    'banned': '封号',
-    'deleted': '删除',
+    'available': '可用',
+    'in_use': '使用中',
+    'disabled': '禁用',
+    'sold': '已售'
+  };
+  return statusMap[status] || status;
+}
+
+/**
+ * 获取整备状态显示文本
+ * @param status 状态值
+ * @returns 对应的显示文本
+ */
+function getPrepStatusText(status: string): string {
+  const statusMap: Record<string, string> = {
     'Ready_For_Sale': '可售',
-    'Fixed': '已修复',
+    'Retail_Photo': '拍照中',
+    'Inspection': '检验中',
     'SOLD': '已售出'
   };
   return statusMap[status] || status;
@@ -218,6 +252,37 @@ function getAssetFilter() {
     return { type: 'ip', value: props.asset.address };
   }
   return null;
+}
+
+/**
+ * 判断当前资产是否有处罚
+ * @returns 是否有处罚记录
+ */
+function hasPenalty(): boolean {
+  const assetId = getAssetValue();
+  if (!assetId) return false;
+  
+  // 使用字符串哈希简单算法
+  const hash = assetId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+  // 约40%的资产会有处罚记录
+  return hash % 10 < 4;
+}
+
+/**
+ * 获取当前资产的值
+ * @returns 当前资产的唯一标识
+ */
+function getAssetValue(): string {
+  if (props.assetType === 'account') {
+    return props.asset.username;
+  } else if (props.assetType === 'virtualNumber') {
+    return props.asset.number;
+  } else if (props.assetType === 'vehicle') {
+    return props.asset.vin;
+  } else if (props.assetType === 'ip') {
+    return props.asset.address;
+  }
+  return '';
 }
 </script>
 

@@ -39,6 +39,31 @@ const routes = [
         path: '/history',
         name: 'History',
         component: AssetHistory
+      },
+      {
+        path: '/history/:type/:value',
+        name: 'FilteredHistory',
+        component: AssetHistory
+      },
+      {
+        path: '/accounts/detail/:username',
+        name: 'AccountDetail',
+        component: () => import('../views/AccountDetail.vue')
+      },
+      {
+        path: '/virtual-numbers/detail/:number',
+        name: 'VirtualNumberDetail',
+        component: () => import('../views/VirtualNumberDetail.vue')
+      },
+      {
+        path: '/vehicles/detail/:vin',
+        name: 'VehicleDetail',
+        component: () => import('../views/VehicleDetail.vue')
+      },
+      {
+        path: '/ips/detail/:address',
+        name: 'IPDetail',
+        component: () => import('../views/IPDetail.vue')
       }
     ]
   }

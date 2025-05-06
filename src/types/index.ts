@@ -6,6 +6,8 @@ export interface BaseAsset {
   usageCount: number;
   /** 最近使用时间（几天前） */
   lastUsed: number;
+  /** 最近停用时间（几天前） */
+  lastInactive: number | null;
   /** 最近处罚时间（几天前），null表示无处罚 */
   lastPenalty: number | null;
   /** 删帖处罚次数 */
@@ -22,8 +24,8 @@ export interface AccountAsset extends BaseAsset {
   username: string;
   /** 密码 */
   password: string;
-  /** 账号状态：正常或封号 */
-  status: 'normal' | 'banned';
+  /** 账号状态：可用、使用中、禁用 */
+  status: 'available' | 'in_use' | 'disabled';
   /** 账号等级：青铜、白银、黄金 */
   level: 'bronze' | 'silver' | 'gold';
 }
@@ -34,8 +36,8 @@ export interface AccountAsset extends BaseAsset {
 export interface VirtualNumberAsset extends BaseAsset {
   /** 虚拟号码 */
   number: string;
-  /** 虚拟号状态：正常或删除 */
-  status: 'normal' | 'deleted';
+  /** 虚拟号状态：可用、使用中、禁用 */
+  status: 'available' | 'in_use' | 'disabled';
 }
 
 /**
@@ -48,8 +50,10 @@ export interface VehicleAsset extends BaseAsset {
   brand: string;
   /** 车辆配置详情 */
   detail: string;
-  /** 车辆状态 */
-  status: 'Ready_For_Sale' | 'Fixed' | 'SOLD';
+  /** 整备状态 */
+  prepStatus: 'Ready_For_Sale' | 'Retail_Photo' | 'Inspection' | 'SOLD';
+  /** 车辆状态：可用、使用中、已售 */
+  status: 'available' | 'in_use' | 'sold';
 }
 
 /**
@@ -62,6 +66,8 @@ export interface IPAsset extends BaseAsset {
   location: string;
   /** IP供应商 */
   provider: string;
+  /** IP状态：可用、使用中、禁用 */
+  status: 'available' | 'in_use' | 'disabled';
 }
 
 /**

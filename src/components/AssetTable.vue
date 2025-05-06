@@ -1,14 +1,107 @@
 <template>
   <div class="asset-table">
+    <!-- 筛选区域 -->
+    <div class="bg-white shadow-md rounded-lg p-5 mb-4">
+      <div class="flex flex-wrap items-end gap-4">
+        <!-- 最近使用筛选 -->
+        <div class="w-40">
+          <label class="block text-sm font-medium text-gray-700 mb-1">最近使用</label>
+          <select v-model="filters.lastUsed" class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-10 bg-gray-50">
+            <option value="-1">不限制</option>
+            <option value="3">3天以上</option>
+            <option value="8">8天以上</option>
+            <option value="15">15天以上</option>
+            <option value="31">31天以上</option>
+          </select>
+        </div>
+        
+        <!-- 最近停用筛选 -->
+        <div class="w-40">
+          <label class="block text-sm font-medium text-gray-700 mb-1">最近停用</label>
+          <select v-model="filters.lastInactive" class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-10 bg-gray-50">
+            <option value="-1">不限制</option>
+            <option value="3">3天以上</option>
+            <option value="8">8天以上</option>
+            <option value="15">15天以上</option>
+            <option value="31">31天以上</option>
+          </select>
+        </div>
+        
+        <!-- 最近处罚筛选 -->
+        <div class="w-40">
+          <label class="block text-sm font-medium text-gray-700 mb-1">最近处罚</label>
+          <select v-model="filters.lastPenalty" class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-10 bg-gray-50">
+            <option value="-1">不限制</option>
+            <option value="3">3天以上</option>
+            <option value="8">8天以上</option>
+            <option value="15">15天以上</option>
+            <option value="31">31天以上</option>
+          </select>
+        </div>
+        
+        <!-- 使用次数筛选 -->
+        <div class="w-40">
+          <label class="block text-sm font-medium text-gray-700 mb-1">使用次数</label>
+          <select v-model="filters.usageCount" class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-10 bg-gray-50">
+            <option value="-1">不限制</option>
+            <option value="0">0次以下</option>
+            <option value="3">3次以下</option>
+            <option value="5">5次以下</option>
+            <option value="8">8次以下</option>
+          </select>
+        </div>
+        
+        <!-- 删帖处罚筛选 -->
+        <div class="w-40">
+          <label class="block text-sm font-medium text-gray-700 mb-1">删帖处罚</label>
+          <select v-model="filters.deletionCount" class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-10 bg-gray-50">
+            <option value="-1">不限制</option>
+            <option value="0">0次以下</option>
+            <option value="2">2次以下</option>
+            <option value="4">4次以下</option>
+            <option value="6">6次以下</option>
+          </select>
+        </div>
+        
+        <!-- 封号处罚筛选 -->
+        <div class="w-40">
+          <label class="block text-sm font-medium text-gray-700 mb-1">封号处罚</label>
+          <select v-model="filters.banCount" class="block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm h-10 bg-gray-50">
+            <option value="-1">不限制</option>
+            <option value="0">0次以下</option>
+            <option value="1">1次以下</option>
+            <option value="2">2次以下</option>
+            <option value="3">3次以下</option>
+          </select>
+        </div>
+        
+        <!-- 筛选按钮 -->
+        <button 
+          @click="applyFilters" 
+          class="h-10 px-6 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors font-medium"
+        >
+          筛选
+        </button>
+        
+        <!-- 重置按钮 -->
+        <button 
+          @click="resetFilters" 
+          class="h-10 px-6 bg-gray-100 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors font-medium"
+        >
+          重置
+        </button>
+      </div>
+    </div>
+
     <div class="bg-white shadow-md rounded-lg overflow-x-auto">
       <table class="w-full table-auto">
-        <thead class="bg-gray-50">
+        <thead class="bg-gray-800 text-white">
           <tr>
             <th 
               v-for="(column, index) in columns" 
               :key="index"
               scope="col" 
-              class="px-6 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider cursor-pointer"
+              class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider cursor-pointer"
               @click="sortBy(column.key)"
             >
               {{ column.label }}
@@ -16,21 +109,24 @@
                 {{ sortOrder === 'asc' ? '↑' : '↓' }}
               </span>
             </th>
-            <th scope="col" class="px-6 py-3 text-center text-base font-bold text-gray-700 uppercase tracking-wider">
+            <th scope="col" class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
               操作
             </th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="(item, idx) in paginatedData" :key="idx" class="hover:bg-gray-50 transition-colors">
+          <tr v-for="(item, idx) in paginatedData" :key="idx" class="hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
             <td 
               v-for="(column, colIdx) in columns" 
               :key="colIdx"
-              class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 text-center"
+              class="px-4 py-3 whitespace-nowrap text-sm text-gray-800 text-center"
             >
               <slot :name="column.key" :item="item">
                 <div v-if="column.key === 'status'" :class="getStatusClass(item.status)">
-                  {{ isAccountStatus(item.status) ? getStatusText(item.status) : item.status }}
+                  {{ getStatusText(item.status) }}
+                </div>
+                <div v-else-if="column.key === 'prepStatus'" class="text-sm">
+                  {{ getPrepStatusText(item.prepStatus) }}
                 </div>
                 <div v-else-if="column.key === 'level'" :class="getLevelClass(item.level)">
                   <span class="flex items-center">
@@ -44,7 +140,10 @@
                   {{ item.lastPenalty === null ? '' : `${item.lastPenalty}天前` }}
                 </div>
                 <div v-else-if="column.key === 'lastUsed'" class="text-sm">
-                  {{ item.lastUsed === 0 ? '' : `${item.lastUsed}天前` }}
+                  {{ item.lastUsed === 0 ? '0天前' : `${item.lastUsed}天前` }}
+                </div>
+                <div v-else-if="column.key === 'lastInactive'" class="text-sm">
+                  {{ item.lastInactive === 0 ? '0天前' : `${item.lastInactive}天前` }}
                 </div>
                 <div v-else-if="column.key === 'vehicle'" class="flex flex-col">
                   <span class="text-sm">{{ item.brand }}</span>
@@ -55,7 +154,7 @@
                 </div>
               </slot>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+            <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-center">
               <button 
                 @click="viewDetails(item)"
                 class="text-blue-600 hover:text-blue-900 bg-blue-50 px-3 py-1 rounded-md hover:bg-blue-100 transition-colors"
@@ -127,6 +226,15 @@ export default {
       sortOrder: 'asc',
       currentPage: 1,
       itemsPerPage: 20,
+      activeFilters: {},
+      filters: {
+        lastUsed: '-1',
+        lastInactive: '-1',
+        lastPenalty: '-1',
+        usageCount: '-1',
+        deletionCount: '-1',
+        banCount: '-1'
+      }
     }
   },
   computed: {
@@ -135,16 +243,54 @@ export default {
      */
     filteredData() {
       return this.data.filter(item => {
-        return Object.values(item).some(value => {
-          if (value === null) return false;
-          if (this.searchQuery === '') return true;
-          return String(value).toLowerCase().includes(this.searchQuery.toLowerCase());
-        });
+        // 搜索过滤
+        let passSearch = true;
+        if (this.searchQuery !== '') {
+          passSearch = Object.values(item).some(value => {
+            if (value === null) return false;
+            return String(value).toLowerCase().includes(this.searchQuery.toLowerCase());
+          });
+        }
+        
+        // 条件过滤
+        let passFilters = true;
+        
+        // 最近使用筛选
+        if (this.activeFilters.lastUsed !== undefined && parseInt(this.activeFilters.lastUsed) > 0) {
+          passFilters = passFilters && item.lastUsed >= parseInt(this.activeFilters.lastUsed);
+        }
+        
+        // 最近停用筛选
+        if (this.activeFilters.lastInactive !== undefined && parseInt(this.activeFilters.lastInactive) > 0) {
+          passFilters = passFilters && (item.lastInactive !== null && item.lastInactive >= parseInt(this.activeFilters.lastInactive));
+        }
+        
+        // 最近处罚筛选
+        if (this.activeFilters.lastPenalty !== undefined && parseInt(this.activeFilters.lastPenalty) > 0) {
+          passFilters = passFilters && (item.lastPenalty !== null && item.lastPenalty >= parseInt(this.activeFilters.lastPenalty));
+        }
+        
+        // 使用次数筛选
+        if (this.activeFilters.usageCount !== undefined && parseInt(this.activeFilters.usageCount) >= 0) {
+          passFilters = passFilters && item.usageCount < parseInt(this.activeFilters.usageCount);
+        }
+        
+        // 删帖处罚筛选
+        if (this.activeFilters.deletionCount !== undefined && parseInt(this.activeFilters.deletionCount) >= 0) {
+          passFilters = passFilters && item.deletionCount < parseInt(this.activeFilters.deletionCount);
+        }
+        
+        // 封号处罚筛选
+        if (this.activeFilters.banCount !== undefined && parseInt(this.activeFilters.banCount) >= 0) {
+          passFilters = passFilters && item.banCount < parseInt(this.activeFilters.banCount);
+        }
+        
+        return passSearch && passFilters;
       }).sort((a, b) => {
         let aValue = a[this.sortKey];
         let bValue = b[this.sortKey];
         
-        // 处理null值和0值（对于lastUsed字段，0表示"今天"，应该排在最前面）
+        // 处理null值和0值（对于lastUsed字段，0表示"0天前"，应该排在最前面）
         if (this.sortKey === 'lastUsed') {
           // 处理null或undefined值，排在最后
           if (aValue === null || aValue === undefined) return this.sortOrder === 'asc' ? 1 : -1;
@@ -202,6 +348,30 @@ export default {
   },
   methods: {
     /**
+     * 应用筛选条件
+     */
+    applyFilters() {
+      this.activeFilters = JSON.parse(JSON.stringify(this.filters));
+      this.currentPage = 1; // 重置到第一页
+    },
+    
+    /**
+     * 重置筛选条件
+     */
+    resetFilters() {
+      this.filters = {
+        lastUsed: '-1',
+        lastInactive: '-1',
+        lastPenalty: '-1',
+        usageCount: '-1',
+        deletionCount: '-1',
+        banCount: '-1'
+      };
+      this.activeFilters = JSON.parse(JSON.stringify(this.filters));
+      this.currentPage = 1;
+    },
+    
+    /**
      * 设置排序方式
      */
     sortBy(key) {
@@ -221,28 +391,13 @@ export default {
     },
     
     /**
-     * 判断是否为账号状态
-     */
-    isAccountStatus(status) {
-      return status === 'normal' || status === 'banned' || status === 'deleted';
-    },
-    
-    /**
      * 获取状态CSS类
      */
     getStatusClass(status) {
-      if (this.isAccountStatus(status)) {
-        if (status === 'normal') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
-        if (status === 'banned' || status === 'deleted') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
-        return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
-      }
-      
-      // 车辆状态不使用特殊样式
-      if (status === 'Ready_For_Sale' || status === 'Fixed' || status === 'SOLD' || 
-          status === 'Smoke' || status === 'Detailing' || status === 'Retail_Photo') {
-        return 'text-sm';
-      }
-      
+      if (status === 'available') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800';
+      if (status === 'in_use') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800';
+      if (status === 'disabled') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
+      if (status === 'sold') return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800';
       return 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
     },
     
@@ -251,9 +406,23 @@ export default {
      */
     getStatusText(status) {
       const statusMap = {
-        'normal': '正常',
-        'banned': '封号',
-        'deleted': '删除'
+        'available': '可用',
+        'in_use': '使用中',
+        'disabled': '禁用',
+        'sold': '已售'
+      };
+      return statusMap[status] || status;
+    },
+    
+    /**
+     * 获取整备状态显示文本
+     */
+    getPrepStatusText(status) {
+      const statusMap = {
+        'Ready_For_Sale': '可售',
+        'Retail_Photo': '拍照中',
+        'Inspection': '检验中',
+        'SOLD': '已售出'
       };
       return statusMap[status] || status;
     },
@@ -285,7 +454,53 @@ export default {
 
 <style scoped>
 .asset-table {
-  padding: 1rem;
   width: 100%;
+}
+
+:deep(th) {
+  position: relative;
+  overflow: hidden;
+  letter-spacing: 0.025em;
+  font-size: 0.875rem;
+}
+
+:deep(th):after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 1px;
+  background: rgba(255,255,255,0.3);
+  transform: translateY(1px);
+  transition: transform 0.2s;
+}
+
+:deep(th:hover):after {
+  transform: translateY(0);
+}
+
+:deep(table) {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+
+:deep(tbody tr) {
+  box-shadow: 0 1px 1px 0 rgba(0, 0, 0, 0.03);
+  transition: all 0.2s ease;
+}
+
+:deep(tbody tr):hover {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  background-color: #f9fafb;
+}
+
+:deep(tbody td) {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+:deep(tbody tr:last-child td) {
+  border-bottom: none;
 }
 </style> 
