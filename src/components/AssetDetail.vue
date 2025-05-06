@@ -43,9 +43,9 @@
                 style="width: 90px;"
                 aria-label="选择账号等级"
               >
-                <option value="bronze" class="text-gray-900">🥉 铜牌</option>
-                <option value="silver" class="text-gray-900">🥈 银牌</option>
-                <option value="gold" class="text-gray-900">🥇 金牌</option>
+                <option value="bronze" class="text-gray-900">🥉 青铜</option>
+                <option value="silver" class="text-gray-900">🥈 白银</option>
+                <option value="gold" class="text-gray-900">🥇 黄金</option>
               </select>
             </div>
           </div>

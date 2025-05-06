@@ -136,9 +136,9 @@
                 </div>
                 <div v-else-if="column.key === 'level'" :class="getLevelClass(item.level)">
                   <span class="flex items-center">
-                    <span v-if="item.level === 'bronze'" class="mr-1.5 text-sm">🥉</span>
-                    <span v-else-if="item.level === 'silver'" class="mr-1.5 text-sm">🥈</span>
-                    <span v-else-if="item.level === 'gold'" class="mr-1.5 text-sm">🥇</span>
+                    <span v-if="item.level === 'bronze'" class="mr-1.5 text-sm">🟤</span>
+                    <span v-else-if="item.level === 'silver'" class="mr-1.5 text-sm">⚪</span>
+                    <span v-else-if="item.level === 'gold'" class="mr-1.5 text-sm">🟡</span>
                     {{ getLevelText(item.level) }}
                   </span>
                 </div>
@@ -492,9 +492,9 @@ export default {
      */
     getLevelText(level) {
       const levelText = {
-        'bronze': '铜牌',
-        'silver': '银牌',
-        'gold': '金牌'
+        'bronze': '青铜',
+        'silver': '白银',
+        'gold': '黄金'
       };
       return levelText[level] || '无等级';
     }
