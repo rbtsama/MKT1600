@@ -21,6 +21,9 @@
             处罚原因
           </th>
           <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
+            备注
+          </th>
+          <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
             账号
           </th>
           <th class="px-4 py-3 text-center text-sm font-bold uppercase tracking-wider">
@@ -97,6 +100,20 @@
             </div>
           </td>
           <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
+            <div class="flex items-center justify-center">
+              <span v-if="item.note" class="text-gray-800">{{ item.note }}</span>
+              <span v-else class="text-gray-400 text-xs">未填写</span>
+              <button 
+                @click="editNote(item)"
+                class="ml-2 text-gray-400 hover:text-gray-600"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                </svg>
+              </button>
+            </div>
+          </td>
+          <td class="px-4 py-3 whitespace-nowrap text-sm text-center">
             <div class="flex flex-col items-start">
               <a 
                 href="javascript:void(0)" 
@@ -160,7 +177,7 @@
         
         <!-- 无数据提示 -->
         <tr v-if="paginatedData.length === 0">
-          <td colspan="9" class="px-4 py-8 text-center text-gray-500">
+          <td colspan="10" class="px-4 py-8 text-center text-gray-500">
             <div class="flex flex-col items-center justify-center">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -345,6 +362,34 @@
         </div>
       </div>
     </div>
+
+    <!-- 备注编辑弹窗 -->
+    <div v-if="showNoteModal" class="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-70">
+      <div class="bg-white rounded-xl shadow-2xl p-6 max-w-md w-full">
+        <div class="flex justify-between items-center mb-4 border-b pb-4">
+          <h3 class="text-lg font-bold text-gray-900">修改备注</h3>
+          <button @click="closeNoteModal" class="text-gray-500 hover:text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-full p-2 transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="space-y-3">
+          <textarea 
+            v-model="tempNote"
+            class="w-full h-20 p-2 border border-gray-300 rounded focus:outline-none focus:ring-gray-500"
+          ></textarea>
+        </div>
+        <div class="flex justify-end mt-6">
+          <button 
+            @click="saveNote"
+            class="px-4 py-2 bg-gray-700 text-white rounded-md hover:bg-gray-800 focus:outline-none"
+          >
+            确定
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -386,9 +431,11 @@ const showSnapshot = ref(false);
 const currentSnapshot = ref<any>(null);
 const showActionModal = ref(false);
 const showReasonsModal = ref(false);
+const showNoteModal = ref(false);
 const currentEditingItem = ref<any>(null);
 const selectedReasons = ref<string[]>([]);
 const tempAction = ref<string | null>(null);
+const tempNote = ref('');
 
 // 路由
 const router = useRouter();
@@ -874,6 +921,34 @@ function formatPenaltyInfo(item: any, type: string): string {
   }
   
   return info;
+}
+
+/**
+ * 编辑备注
+ * @param item 要编辑的项
+ */
+function editNote(item: any) {
+  currentEditingItem.value = item;
+  tempNote.value = item.note || '';
+  showNoteModal.value = true;
+}
+
+/**
+ * 关闭备注编辑弹窗
+ */
+function closeNoteModal() {
+  showNoteModal.value = false;
+  currentEditingItem.value = null;
+}
+
+/**
+ * 保存备注
+ */
+function saveNote() {
+  if (currentEditingItem.value) {
+    currentEditingItem.value.note = tempNote.value;
+  }
+  closeNoteModal();
 }
 </script>
 
